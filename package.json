@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/ducktrshessami/employee-db/issues"
   },
-  "homepage": "https://github.com/ducktrshessami/employee-db#readme"
+  "homepage": "https://github.com/ducktrshessami/employee-db#readme",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
 }
