@@ -11,7 +11,7 @@ const db = sql.createConnection({
 
 // CLI
 function main() {
-
+    db.end();
 }
 
 // Promisified db.query
