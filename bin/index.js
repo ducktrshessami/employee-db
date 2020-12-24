@@ -1,5 +1,6 @@
 const sql = require("mysql");
 const { prompt } = require("inquirer");
+const cTable = require("console.table");
 
 const db = sql.createConnection({
     host: "localhost",
@@ -34,14 +35,15 @@ const entryQ = [
 ];
 
 // CLI
-async function main() {
+function main() {
     prompt(entryQ)
-        .then(response => {
+        .then(async response => {
+            let cont = true;
             switch (response.action) {
-                case "View all departments":
-                case "View all roles":
-                case "View all employees":
-                case "View all employees by manager":
+                case "View all departments": await printTb("department_tb"); break;
+                case "View all roles": await printTb("role_tb"); break;
+                case "View all employees": await printTb("employee_tb"); break;
+                case "View all employees by manager": await viewManage(); break;
                 case "View utilized budget by department":
                 case "Add a department":
                 case "Add a role":
@@ -60,6 +62,13 @@ async function main() {
                 db.end();
             }
         });
+}
+
+// Print a table from the db
+function printTb(table) {
+    return dbQuery(`select * from ${table} order by id`)
+        .then(console.table)
+        .catch(console.error);
 }
 
 // Promisified db.query
