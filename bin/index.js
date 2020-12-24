@@ -9,11 +9,23 @@ const db = sql.createConnection({
     database: "employee_db"
 });
 
+// CLI
 function main() {
-    
+
 }
 
-db.connect(function(err) {
-    if (err) throw err;
+// Promisified db.query
+function dbQuery(query, values) {
+    return new Promise((resolve, reject) => {
+        db.query(query, values, (error, results) => {
+            if (error) reject(error);
+            else resolve(results);
+        })
+    });
+}
+
+// Here we go
+db.connect(function(error) {
+    if (error) throw error;
     else main();
 });
