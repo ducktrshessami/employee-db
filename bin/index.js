@@ -67,7 +67,14 @@ function main() {
 // Print a table from the db
 function printTb(table) {
     return dbQuery(`select * from ${table} order by id`)
-        .then(console.table)
+        .then(response => {
+            if (response.length) {
+                console.table(response);
+            }
+            else {
+                console.log(`${table} is empty`);
+            }
+        })
         .catch(console.error);
 }
 
