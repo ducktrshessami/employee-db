@@ -111,6 +111,28 @@ function printTb(table) {
         .catch(console.error);
 }
 
+function viewManage() {
+    return dbQuery("select * from employee_tb")
+        .then(response => {
+            let managers = {};
+            response.forEach(employee => { // Group employees by their manager
+                if (employee.manager_id !== null) {
+                    if (!managers[employee.manager_id]) {
+                        managers[employee.manager_id] = [];
+                    }
+                    managers[employee.manager_id].push(employee);
+                }
+            });
+            if (Object.keys(managers).length) {
+
+            }
+            else {
+                console.log("")
+            }
+        })
+        .catch(console.error);
+}
+
 // Handle add department functionality
 function addDepartment() {
     return prompt(addDepartmentQ)
