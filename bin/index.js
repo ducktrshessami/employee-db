@@ -105,7 +105,7 @@ function printTb(table) {
                 console.table(response);
             }
             else {
-                console.log(`${table} is empty`);
+                console.log(`${table} is empty\n`);
             }
         })
         .catch(console.error);
@@ -114,8 +114,39 @@ function printTb(table) {
 // Handle add department functionality
 function addDepartment() {
     return prompt(addDepartmentQ)
-        .then(response => dbQuery("insert into department_tb (department_name) values (?)", response.department_name))
-        .then(() => console.log("Success!"))
+        .then(response => dbQuery("insert into department_tb (department_name) values (?)", [response.department_name]))
+        .then(() => console.log("Success!\n"))
+        .catch(console.error);
+}
+
+// Handle add role functionality
+function addRole() {
+    return dbQuery("select * from department_tb")
+        .then(departments => {
+            if (!departments.length) {
+                console.log("There are no departments to add roles to");
+            }
+            else {
+                return prompt(addRoleQ.concat({
+                    type: "list",
+                    name: "department",
+                    message: "Department:",
+                    choices: departments.map(department => department.department_name)
+                }))
+                    .then(response => {
+                        return dbQuery(
+                            "insert into role_tb (title, salary, department_id) values (?, ?, ?)",
+                            [
+                                response.title,
+                                parseFloat(response.salary),
+                                departments.find(department => department.department_name == response.department).id
+                            ]
+                        );
+                    })
+                    .then(() => console.log("Success!"))
+                    .catch(console.error);
+            }
+        })
         .catch(console.error);
 }
 
