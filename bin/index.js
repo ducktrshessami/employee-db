@@ -117,17 +117,29 @@ function viewManage() {
             let managers = {};
             response.forEach(employee => { // Group employees by their manager
                 if (employee.manager_id !== null) {
-                    if (!managers[employee.manager_id]) {
-                        managers[employee.manager_id] = [];
+                    let manager = response.find(e => e.id == employee.manager_id);
+                    if (manager) {
+                        let name = `${manager.first_name} ${manager.last_name}`;
+                        if (!managers[name]) {
+                            managers[name] = [];
+                        }
+                        managers[name].push(employee);
                     }
-                    managers[employee.manager_id].push(employee);
                 }
             });
             if (Object.keys(managers).length) {
-
+                return prompt({
+                    type: "list",
+                    name: "name",
+                    message: "Manager:",
+                    choices: Object.keys(managers)
+                })
+                    .then(manager => managers[manager.name])
+                    .then(console.table)
+                    .catch(console.error);
             }
             else {
-                console.log("")
+                console.log("There are no employees with managers");
             }
         })
         .catch(console.error);
