@@ -181,8 +181,18 @@ function addEmployee() {
                 }
                 return prompt(questions)
                     .then(response => {
-
+                        let manager = data.employees.find(employee => `${employee.first_name} ${employee.last_name}` == response.manager);
+                        return dbQuery(
+                            "insert into employee_tb (first_name, last_name, role_id, manager_id) values (?, ?, ?, ?)",
+                            [
+                                response.first_name,
+                                response.last_name,
+                                data.roles.find(role => role.title == response.role).id,
+                                manager ? manager.id : null
+                            ]
+                        );
                     })
+                    .then(() => console.log("Success!\n"))
                     .catch(console.error);
             }
         })
