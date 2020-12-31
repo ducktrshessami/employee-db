@@ -111,7 +111,10 @@ function printTb(table) {
 }
 
 function addDepartment() {
-
+    return prompt(addDepartmentQ)
+        .then(response => dbQuery("insert into department_tb (department_name) values (?)", response.department_name))
+        .then(() => console.log("Success!"))
+        .catch(console.error);
 }
 
 // Validate money input
