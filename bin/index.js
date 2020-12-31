@@ -77,7 +77,7 @@ function main() {
                 case "View all roles": await printTb("role_tb"); break;
                 case "View all employees": await printTb("employee_tb"); break;
                 case "View all employees by manager": await viewManage(); break;
-                case "View utilized budget by department":
+                case "View utilized budget by department": await viewDeptBudget(); break;
                 case "Add a department": await addDepartment(); break;
                 case "Add a role": await addRole(); break;
                 case "Add an employee": await addEmployee(); break;
@@ -94,7 +94,8 @@ function main() {
             else {
                 db.end();
             }
-        });
+        })
+        .catch(console.error);
 }
 
 // Print a table from the db
@@ -111,6 +112,7 @@ function printTb(table) {
         .catch(console.error);
 }
 
+// View employees by manager functionality
 function viewManage() {
     return dbQuery("select * from employee_tb")
         .then(response => {
@@ -139,7 +141,32 @@ function viewManage() {
                     .catch(console.error);
             }
             else {
-                console.log("There are no employees with managers");
+                console.log("There are no employees with managers\n");
+            }
+        })
+        .catch(console.error);
+}
+
+// Calculate a department's total utilized budget
+function viewDeptBudget() {
+    return dbQuery("select * from department_tb")
+        .then(departments => {
+            if (departments.length) {
+                return prompt({
+                    type: "list",
+                    name: "department_name",
+                    message: "Department:",
+                    choices: departments.map(dept => dept.department_name)
+                })
+                    .then(response => response.department_name)
+                    .then(department => departments.find(dept => dept.department_name == department))
+                    .then(department => {
+                        
+                    })
+                    .catch(console.error);
+            }
+            else {
+                console.log("There are no departments\n");
             }
         })
         .catch(console.error);
@@ -158,7 +185,7 @@ function addRole() {
     return dbQuery("select * from department_tb")
         .then(departments => {
             if (!departments.length) { // Must have departments
-                console.log("There are no departments to add roles to");
+                console.log("There are no departments to add roles to\n");
             }
             else {
                 return prompt(addRoleQ.concat({ // Prompt questions with current department list
@@ -177,7 +204,7 @@ function addRole() {
                             ]
                         );
                     })
-                    .then(() => console.log("Success!"))
+                    .then(() => console.log("Success!\n"))
                     .catch(console.error);
             }
         })
@@ -196,7 +223,7 @@ function addEmployee() {
         }))
         .then(data => {
             if (!data.roles.length) { // Must have roles
-                console.log("There are no roles for an employee to be");
+                console.log("There are no roles for an employee to be\n");
             }
             else {
                 let questions = addEmployeeQ.concat({ // Initialize question list with current role list
