@@ -10,6 +10,7 @@ const db = sql.createConnection({
     database: "employee_db"
 });
 
+// Questions
 const entryQ = [
     {
         type: "list",
@@ -110,6 +111,7 @@ function printTb(table) {
         .catch(console.error);
 }
 
+// Handle add department functionality
 function addDepartment() {
     return prompt(addDepartmentQ)
         .then(response => dbQuery("insert into department_tb (department_name) values (?)", response.department_name))
