@@ -123,23 +123,23 @@ function addDepartment() {
 function addRole() {
     return dbQuery("select * from department_tb")
         .then(departments => {
-            if (!departments.length) {
+            if (!departments.length) { // Must have departments
                 console.log("There are no departments to add roles to");
             }
             else {
-                return prompt(addRoleQ.concat({
+                return prompt(addRoleQ.concat({ // Prompt questions with current department list
                     type: "list",
                     name: "department",
                     message: "Department:",
-                    choices: departments.map(department => department.department_name)
+                    choices: departments.map(department => department.department_name) // Convert objects to titles
                 }))
-                    .then(response => {
+                    .then(response => { // Parse data and insert into role_tb
                         return dbQuery(
                             "insert into role_tb (title, salary, department_id) values (?, ?, ?)",
                             [
                                 response.title,
                                 parseFloat(response.salary),
-                                departments.find(department => department.department_name == response.department).id
+                                departments.find(department => department.department_name == response.department).id // Convert title back to id
                             ]
                         );
                     })
@@ -152,43 +152,43 @@ function addRole() {
 
 // Handle add employee functionality
 function addEmployee() {
-    return Promise.all([
+    return Promise.all([ // Asynchronously get roles and employees
         dbQuery("select id, title from role_tb"),
         dbQuery("select id, first_name, last_name from employee_tb")
     ])
-        .then(data => ({
+        .then(data => ({ // Organize roles and employees into an object
             roles: data[0],
             employees: data[1]
         }))
         .then(data => {
-            if (!data.roles.length) {
+            if (!data.roles.length) { // Must have roles
                 console.log("There are no roles for an employee to be");
             }
             else {
-                let questions = addEmployeeQ.concat({
+                let questions = addEmployeeQ.concat({ // Initialize question list with current role list
                     type: "list",
                     name: "role",
                     message: "Role:",
                     choices: data.roles.map(role => role.title)
                 });
-                if (data.employees.length) {
+                if (data.employees.length) { // Manager selection question if there are employees to be managers
                     questions = questions.concat({
                         type: "list",
                         name: "manager",
                         message: "Manager:",
-                        choices: ["N/A"].concat(data.employees.map(employee => `${employee.first_name} ${employee.last_name}`))
+                        choices: ["N/A"].concat(data.employees.map(employee => `${employee.first_name} ${employee.last_name}`)) // Convert objects to full names
                     });
                 }
-                return prompt(questions)
+                return prompt(questions) // Prompt and parse
                     .then(response => {
-                        let manager = data.employees.find(employee => `${employee.first_name} ${employee.last_name}` == response.manager);
+                        let manager = data.employees.find(employee => `${employee.first_name} ${employee.last_name}` == response.manager); // Convert full name to object
                         return dbQuery(
                             "insert into employee_tb (first_name, last_name, role_id, manager_id) values (?, ?, ?, ?)",
                             [
                                 response.first_name,
                                 response.last_name,
-                                data.roles.find(role => role.title == response.role).id,
-                                manager ? manager.id : null
+                                data.roles.find(role => role.title == response.role).id, // Convert title to id
+                                manager ? manager.id : null // Pass id or null if no id
                             ]
                         );
                     })
