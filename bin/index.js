@@ -32,6 +32,38 @@ const entryQ = [
             "Exit"
         ]
     }
+],
+addDepartmentQ = [
+    {
+        type: "input",
+        name: "department_name",
+        message: "Department name:"
+    }
+],
+addRoleQ = [
+    {
+        type: "input",
+        name: "title",
+        message: "Role title:"
+    },
+    {
+        type: "input",
+        name: "salary",
+        message: "Salary ($):",
+        validate: validateMoney
+    }
+],
+addEmployeeQ = [
+    {
+        type: "input",
+        name: "first_name",
+        message: "Employee first name:"
+    },
+    {
+        type: "input",
+        name: "last_name",
+        message: "Last name:"
+    }
 ];
 
 // CLI
@@ -45,9 +77,9 @@ function main() {
                 case "View all employees": await printTb("employee_tb"); break;
                 case "View all employees by manager": await viewManage(); break;
                 case "View utilized budget by department":
-                case "Add a department":
-                case "Add a role":
-                case "Add an employee":
+                case "Add a department": await addDepartment(); break;
+                case "Add a role": await addRole(); break;
+                case "Add an employee": await addEmployee(); break;
                 case "Update an employee role":
                 case "Update an employee manager":
                 case "Delete a department":
@@ -76,6 +108,16 @@ function printTb(table) {
             }
         })
         .catch(console.error);
+}
+
+function addDepartment() {
+
+}
+
+// Validate money input
+function validateMoney(input) {
+    let number = parseFloat(input);
+    return (number && ((number * 100) % 1 == 0)) || "Please enter a valid salary";
 }
 
 // Promisified db.query
