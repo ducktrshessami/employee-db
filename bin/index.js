@@ -150,6 +150,45 @@ function addRole() {
         .catch(console.error);
 }
 
+// Handle add employee functionality
+function addEmployee() {
+    return Promise.all([
+        dbQuery("select id, title from role_tb"),
+        dbQuery("select id, first_name, last_name from employee_tb")
+    ])
+        .then(data => ({
+            roles: data[0],
+            employees: data[1]
+        }))
+        .then(data => {
+            if (!data.roles.length) {
+                console.log("There are no roles for an employee to be");
+            }
+            else {
+                let questions = addEmployeeQ.concat({
+                    type: "list",
+                    name: "role",
+                    message: "Role:",
+                    choices: data.roles.map(role => role.title)
+                });
+                if (data.employees.length) {
+                    questions = questions.concat({
+                        type: "list",
+                        name: "manager",
+                        message: "Manager:",
+                        choices: ["N/A"].concat(data.employees.map(employee => `${employee.first_name} ${employee.last_name}`))
+                    });
+                }
+                return prompt(questions)
+                    .then(response => {
+
+                    })
+                    .catch(console.error);
+            }
+        })
+        .catch(console.error);
+}
+
 // Validate money input
 function validateMoney(input) {
     let number = parseFloat(input);
