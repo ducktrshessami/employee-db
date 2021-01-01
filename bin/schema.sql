@@ -4,7 +4,7 @@ use employee_db;
 
 create table department_tb(
     id int primary key auto_increment,
-    department_name varchar(30) not null
+    name varchar(30) not null
 );
 
 create table role_tb(

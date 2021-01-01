@@ -37,7 +37,7 @@ const entryQ = [
 addDepartmentQ = [
     {
         type: "input",
-        name: "department_name",
+        name: "name",
         message: "Department name:"
     }
 ],
@@ -111,7 +111,7 @@ function viewRoleList() {
 
 // View employees
 function viewEmpList() {
-    return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.department_name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id")
+    return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id")
         .then(employees => {
             employees.forEach(emp => {
                 emp.salary = emp.salary.toFixed(2);
@@ -167,12 +167,12 @@ function viewDeptBudget() {
             if (departments.length) {
                 return prompt({
                     type: "list",
-                    name: "department_name",
+                    name: "name",
                     message: "Department:",
-                    choices: departments.map(dept => dept.department_name) // Convert to department name list
+                    choices: departments.map(dept => dept.name) // Convert to department name list
                 })
-                    .then(response => response.department_name)
-                    .then(department => departments.find(dept => dept.department_name == department)) // Assume this succeeded
+                    .then(response => response.name)
+                    .then(department => departments.find(dept => dept.name == department)) // Assume this succeeded
                     .then(department => {
                         return dbQuery("select role_tb.salary from employee_tb inner join role_tb on employee_tb.role_id = role_tb.id where role_tb.department_id = ?", department.id)
                             .then(salaries => salaries.map(item => item.salary))
@@ -193,7 +193,7 @@ function viewDeptBudget() {
 // Handle add department functionality
 function addDepartment() {
     return prompt(addDepartmentQ)
-        .then(response => dbQuery("insert into department_tb (department_name) values (?)", [response.department_name]))
+        .then(response => dbQuery("insert into department_tb (name) values (?)", [response.name]))
         .then(() => console.log("Success!\n"))
         .catch(console.error);
 }
@@ -210,7 +210,7 @@ function addRole() {
                     type: "list",
                     name: "department",
                     message: "Department:",
-                    choices: departments.map(department => department.department_name) // Convert objects to titles
+                    choices: departments.map(department => department.name) // Convert objects to titles
                 }))
                     .then(response => { // Parse data and insert into role_tb
                         return dbQuery(
@@ -218,7 +218,7 @@ function addRole() {
                             [
                                 response.title,
                                 parseFloat(response.salary),
-                                departments.find(department => department.department_name == response.department).id // Convert title back to id
+                                departments.find(department => department.name == response.department).id // Convert title back to id
                             ]
                         );
                     })
