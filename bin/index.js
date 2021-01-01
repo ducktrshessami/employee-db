@@ -101,7 +101,14 @@ function main() {
 // View departments
 function viewDeptList() {
     return dbQuery("select id, name as department from department_tb order by id")
-        .then(console.table)
+        .then(departments => {
+            if (departments.length) {
+                console.table(departments);
+            }
+            else {
+                console.log("There are no departments\n");
+            }
+        })
         .catch(console.error);
 }
 
@@ -114,7 +121,14 @@ function viewRoleList() {
             });
             return roles;
         })
-        .then(console.table)
+        .then(roles => {
+            if (roles.length) {
+                console.table(roles);
+            }
+            else {
+                console.log("There are no roles\n");
+            }
+        })
         .catch(console.error);
 }
 
@@ -130,7 +144,14 @@ function viewEmpList() {
             });
             return employees;
         })
-        .then(console.table)
+        .then(employees => {
+            if (employees.length) {
+                console.table(employees);
+            }
+            else {
+                console.log("There are no employees\n");
+            }
+        })
         .catch(console.error);
 }
 
