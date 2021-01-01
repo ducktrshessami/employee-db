@@ -117,7 +117,7 @@ function viewRoleList() {
     return dbQuery("select role_tb.id, role_tb.title, role_tb.salary, department_tb.name as department from role_tb inner join department_tb on role_tb.department_id = department_tb.id order by id")
         .then(roles => {
             roles.forEach(role => {
-                role.salary = role.salary.toFixed(2);
+                role.salary = role.salary.toFixed(2); // Always show cents
             });
             return roles;
         })
@@ -137,8 +137,8 @@ function viewEmpList() {
     return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id order by id")
         .then(employees => {
             employees.forEach(emp => {
-                emp.salary = emp.salary.toFixed(2);
-                emp.manager = (emp.manager_first_name || emp.manager_last_name) === null ? null : `${emp.manager_first_name} ${emp.manager_last_name}`
+                emp.salary = emp.salary.toFixed(2); // Always show cents
+                emp.manager = (emp.manager_first_name || emp.manager_last_name) === null ? null : `${emp.manager_first_name} ${emp.manager_last_name}` // Format manager name into single column
                 delete emp.manager_first_name;
                 delete emp.manager_last_name;
             });
