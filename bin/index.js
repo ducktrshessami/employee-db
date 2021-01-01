@@ -100,21 +100,27 @@ function main() {
 
 // View departments
 function viewDeptList() {
-    return dbQuery("select * from department_tb order by id")
+    return dbQuery("select id, name as department from department_tb order by id")
         .then(console.table)
         .catch(console.error);
 }
 
 // View roles
 function viewRoleList() {
-    return dbQuery("select * from role_tb order by id")
+    return dbQuery("select role_tb.id, role_tb.title, role_tb.salary, department_tb.name as department from role_tb inner join department_tb on role_tb.department_id = department_tb.id order by id")
+        .then(roles => {
+            roles.forEach(role => {
+                role.salary = role.salary.toFixed(2);
+            });
+            return roles;
+        })
         .then(console.table)
         .catch(console.error);
 }
 
 // View employees
 function viewEmpList() {
-    return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id")
+    return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id order by id")
         .then(employees => {
             employees.forEach(emp => {
                 emp.salary = emp.salary.toFixed(2);
@@ -130,7 +136,7 @@ function viewEmpList() {
 
 // View employees by manager functionality
 function viewManage() {
-    return dbQuery("select * from employee_tb")
+    return dbQuery("select * from employee_tb order by id")
         .then(response => {
             let managers = {};
             response.forEach(employee => { // Group employees by their manager
@@ -165,7 +171,7 @@ function viewManage() {
 
 // Calculate a department's total utilized budget
 function viewDeptBudget() {
-    return dbQuery("select * from department_tb")
+    return dbQuery("select * from department_tb order by id")
         .then(departments => {
             if (departments.length) {
                 return prompt({
@@ -203,7 +209,7 @@ function addDepartment() {
 
 // Handle add role functionality
 function addRole() {
-    return dbQuery("select * from department_tb")
+    return dbQuery("select * from department_tb order by id")
         .then(departments => {
             if (!departments.length) { // Must have departments
                 console.log("There are no departments to add roles to\n");
@@ -235,8 +241,8 @@ function addRole() {
 // Handle add employee functionality
 function addEmployee() {
     return Promise.all([ // Asynchronously get roles and employees
-        dbQuery("select id, title from role_tb"),
-        dbQuery("select id, first_name, last_name from employee_tb")
+        dbQuery("select id, title from role_tb order by id"),
+        dbQuery("select id, first_name, last_name from employee_tb order by id")
     ])
         .then(data => ({ // Organize roles and employees into an object
             roles: data[0],
