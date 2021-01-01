@@ -83,9 +83,9 @@ function main() {
                 case "Add an employee": await addEmployee(); break;
                 case "Update an employee role":
                 case "Update an employee manager":
-                case "Delete a department":
-                case "Delete a role":
-                case "Delete an employee":
+                case "Delete a department": await deleteDept(); break;
+                case "Delete a role": await deleteRole(); break;
+                case "Delete an employee": await deleteEmp(); break;
                 default: cont = false; break;
             }
             if (cont) {
@@ -303,6 +303,43 @@ function addEmployee() {
                     })
                     .then(() => console.log("Success!\n"))
                     .catch(console.error);
+            }
+        })
+        .catch(console.error);
+}
+
+// Remove a department
+function deleteDept() {
+
+}
+
+// Remove a role
+function deleteRole() {
+
+}
+
+// Remove an employee
+function deleteEmp() {
+    return dbQuery("select id, first_name, last_name from employee_tb order by id")
+        .then(employees => {
+            if (employees.length) {
+                return prompt({
+                    type: "list",
+                    name: "name",
+                    message: "Employee:",
+                    choices: employees.map(emp => `${emp.first_name} ${emp.last_name}`)
+                })
+                    .then(response => {
+                        return dbQuery(
+                            "delete from employee_tb where id = ?",
+                            employees.find(emp => response.name == `${emp.first_name} ${emp.last_name}`).id
+                        );
+                    })
+                    .then(() => console.log("Success!\n"))
+                    .catch(console.error);
+            }
+            else {
+                console.log("There are no employees\n");
             }
         })
         .catch(console.error);
