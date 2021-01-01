@@ -50,7 +50,7 @@ addRoleQ = [
     {
         type: "input",
         name: "salary",
-        message: "Salary ($):",
+        message: "Salary ($/hr):",
         validate: validateMoney
     }
 ],
@@ -58,7 +58,7 @@ addEmployeeQ = [
     {
         type: "input",
         name: "first_name",
-        message: "Employee first name:"
+        message: "First name:"
     },
     {
         type: "input",
@@ -73,9 +73,9 @@ function main() {
         .then(async response => {
             let cont = true;
             switch (response.action) {
-                case "View all departments": await printTb("department_tb"); break;
-                case "View all roles": await printTb("role_tb"); break;
-                case "View all employees": await printTb("employee_tb"); break;
+                case "View all departments": await viewDeptList(); break;
+                case "View all roles": await viewRoleList(); break;
+                case "View all employees": await viewEmpList(); break;
                 case "View all employees by manager": await viewManage(); break;
                 case "View utilized budget by department": await viewDeptBudget(); break;
                 case "Add a department": await addDepartment(); break;
@@ -98,17 +98,30 @@ function main() {
         .catch(console.error);
 }
 
-// Print a table from the db
-function printTb(table) {
-    return dbQuery(`select * from ${table} order by id`)
-        .then(response => {
-            if (response.length) {
-                console.table(response);
-            }
-            else {
-                console.log(`${table} is empty\n`);
-            }
+// View departments
+function viewDeptList() {
+    return dbQuery("select * from department_tb order by id")
+        .then(console.table);
+}
+
+// View roles
+function viewRoleList() {
+    // return dbQuery("select * from role_tb order by id")
+}
+
+// View employees
+function viewEmpList() {
+    return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.department_name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id")
+        .then(employees => {
+            employees.forEach(emp => {
+                emp.salary = emp.salary.toFixed(2);
+                emp.manager = (emp.manager_first_name || emp.manager_last_name) === null ? null : `${emp.manager_first_name} ${emp.manager_last_name}`
+                delete emp.manager_first_name;
+                delete emp.manager_last_name;
+            });
+            return employees;
         })
+        .then(console.table)
         .catch(console.error);
 }
 
@@ -156,15 +169,15 @@ function viewDeptBudget() {
                     type: "list",
                     name: "department_name",
                     message: "Department:",
-                    choices: departments.map(dept => dept.department_name)
+                    choices: departments.map(dept => dept.department_name) // Convert to department name list
                 })
                     .then(response => response.department_name)
                     .then(department => departments.find(dept => dept.department_name == department)) // Assume this succeeded
                     .then(department => {
                         return dbQuery("select role_tb.salary from employee_tb inner join role_tb on employee_tb.role_id = role_tb.id where role_tb.department_id = ?", department.id)
                             .then(salaries => salaries.map(item => item.salary))
-                            .then(salaries => salaries.reduce((x, y) => x + y))
-                            .then(total => `$${total.toFixed(2)}`)
+                            .then(salaries => salaries.reduce((x, y) => x + y)) // Sum of salaries
+                            .then(total => `$${total.toFixed(2)}\n`)
                             .then(console.log)
                             .catch(console.error);
                     })
@@ -277,7 +290,7 @@ function dbQuery(query, values) {
         db.query(query, values, (error, results) => {
             if (error) reject(error);
             else resolve(results);
-        })
+        });
     });
 }
 
