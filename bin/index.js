@@ -50,7 +50,7 @@ addRoleQ = [
     {
         type: "input",
         name: "salary",
-        message: "Salary ($/hr):",
+        message: "Salary ($/yr):",
         validate: validateMoney
     }
 ],
@@ -101,12 +101,15 @@ function main() {
 // View departments
 function viewDeptList() {
     return dbQuery("select * from department_tb order by id")
-        .then(console.table);
+        .then(console.table)
+        .catch(console.error);
 }
 
 // View roles
 function viewRoleList() {
-    // return dbQuery("select * from role_tb order by id")
+    return dbQuery("select * from role_tb order by id")
+        .then(console.table)
+        .catch(console.error);
 }
 
 // View employees
