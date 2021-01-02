@@ -157,20 +157,25 @@ function viewEmpList() {
 
 // View employees by manager functionality
 function viewManage() {
-    return dbQuery("select * from employee_tb order by id")
+    return dbQuery("select a.id, a.first_name, a.last_name, role_tb.title, department_tb.name as department, role_tb.salary, b.first_name as manager_first_name, b.last_name as manager_last_name from employee_tb as a left join employee_tb as b on a.manager_id = b.id left join role_tb inner join department_tb on role_tb.department_id = department_tb.id on a.role_id = role_tb.id order by id")
         .then(response => {
-            let managers = {};
+            let managers = {"N/A": []};
             response.forEach(employee => { // Group employees by their manager
-                if (employee.manager_id !== null) {
-                    let manager = response.find(e => e.id == employee.manager_id);
-                    if (manager) {
-                        let name = `${manager.first_name} ${manager.last_name}`;
-                        if (!managers[name]) {
-                            managers[name] = [];
-                        }
-                        managers[name].push(employee);
-                    }
+                let manager;
+                if (employee.manager_first_name && employee.manager_last_name) {
+                    manager = `${employee.manager_first_name} ${employee.manager_last_name}`;
                 }
+                else {
+                    manager = "N/A";
+                }
+                if (!managers[manager]) {
+                    managers[manager] = [];
+                }
+                employee.salary = employee.salary.toFixed(2); // Always show cents
+                employee.manager = (employee.manager_first_name || employee.manager_last_name) === null ? null : `${employee.manager_first_name} ${employee.manager_last_name}` // Format manager name into single column
+                delete employee.manager_first_name;
+                delete employee.manager_last_name;
+                managers[manager].push(employee);
             });
             if (Object.keys(managers).length) {
                 return prompt({
