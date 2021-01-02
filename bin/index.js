@@ -224,7 +224,7 @@ function viewDeptBudget() {
 function addDepartment() {
     return prompt(addDepartmentQ)
         .then(response => dbQuery("insert into department_tb (name) values (?)", [response.name]))
-        .then(() => console.log("Success!\n"))
+        .then(() => console.log("Added department!\n"))
         .catch(console.error);
 }
 
@@ -252,7 +252,7 @@ function addRole() {
                             ]
                         );
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Added role!\n"))
                     .catch(console.error);
             }
         })
@@ -301,7 +301,7 @@ function addEmployee() {
                             ]
                         );
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Added employee!\n"))
                     .catch(console.error);
             }
         })
@@ -349,7 +349,7 @@ function updateRole() {
                             ]
                         );
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Updated employee role!\n"))
                     .catch(console.error);
             }
         })
@@ -386,7 +386,7 @@ function updateManager() {
                             ]
                         );
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Updated employee manager!\n"))
                     .catch(console.error);
             }
             else {
@@ -414,7 +414,7 @@ function deleteDept() {
                         )
                         .then(() => pruneDeptRoles()); // Roles can't have a null department
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Deleted department (and relative roles and employees)!\n"))
                     .catch(console.error);
             }
             else {
@@ -442,7 +442,7 @@ function deleteRole() {
                         )
                             .then(() => pruneRoleEmps()); // Employees can't have null role
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Deleted role (and relative employees)!\n"))
                     .catch(console.error);
             }
             else {
@@ -468,7 +468,7 @@ function deleteEmp() {
                         return dbQuery("delete from employee_tb where id = ?", id)
                             .then(() => pruneManagers(id));
                     })
-                    .then(() => console.log("Success!\n"))
+                    .then(() => console.log("Deleted employee (and updated managers)!\n"))
                     .catch(console.error);
             }
             else {
