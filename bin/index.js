@@ -324,7 +324,12 @@ function deleteRole() {
                     message: "Role:",
                     choices: roles.map(role => role.title)
                 })
-                    .then(response)
+                    .then(response => {
+                        let id = roles.find(role => response.title == role.title).id;
+                        return dbQuery("delete from role_tb where id = ?", id)
+                            .then(() => pruneRoles(id));
+                    })
+                    .then(() => console.log("Success!\n"))
                     .catch(console.error);
             }
         })
@@ -355,6 +360,16 @@ function deleteEmp() {
             }
         })
         .catch(console.error);
+}
+
+// Clean up employee roles after deleting an employee
+function pruneRoles(id) {
+    if (id) {
+
+    }
+    else {
+        
+    }
 }
 
 // Clean up managers after deleting an employee
