@@ -330,10 +330,9 @@ function deleteEmp() {
                     choices: employees.map(emp => `${emp.first_name} ${emp.last_name}`)
                 })
                     .then(response => {
-                        return dbQuery(
-                            "delete from employee_tb where id = ?",
-                            employees.find(emp => response.name == `${emp.first_name} ${emp.last_name}`).id
-                        );
+                        let id = employees.find(emp => response.name == `${emp.first_name} ${emp.last_name}`).id;
+                        return dbQuery("delete from employee_tb where id = ?", id)
+                            .then(() => pruneManagers(id));
                     })
                     .then(() => console.log("Success!\n"))
                     .catch(console.error);
@@ -343,6 +342,14 @@ function deleteEmp() {
             }
         })
         .catch(console.error);
+}
+
+// Clean up managers after deleting an employee
+function pruneManagers(id) {
+    if (id) {
+        return dbQuery("update employee_tb set manager_id = null where manager_id = ?", id)
+            .catch(console.error);
+    }
 }
 
 // Validate money input
