@@ -161,13 +161,7 @@ function viewManage() {
         .then(response => {
             let managers = {"N/A": []};
             response.forEach(employee => { // Group employees by their manager
-                let manager;
-                if (employee.manager_first_name && employee.manager_last_name) {
-                    manager = `${employee.manager_first_name} ${employee.manager_last_name}`;
-                }
-                else {
-                    manager = "N/A";
-                }
+                let manager = employee.manager_first_name && employee.manager_last_name ? `${employee.manager_first_name} ${employee.manager_last_name}` : "N/A";
                 if (!managers[manager]) {
                     managers[manager] = [];
                 }
