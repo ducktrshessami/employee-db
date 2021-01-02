@@ -177,7 +177,7 @@ function viewManage() {
                     type: "list",
                     name: "name",
                     message: "Manager:",
-                    choices: Object.keys(managers)
+                    choices: Object.keys(managers) // Grab manager list
                 })
                     .then(manager => managers[manager.name])
                     .then(console.table)
@@ -308,17 +308,18 @@ function addEmployee() {
         .catch(console.error);
 }
 
+// Update an employee's role
 function updateRole() {
-    return Promise.all([
+    return Promise.all([ // Asynchronously get employees and roles
         dbQuery("select id, first_name, last_name from employee_tb order by id"),
         dbQuery("select id, title from role_tb order by id")
     ])
-        .then(data => ({
+        .then(data => ({ // Organize data
             employees: data[0],
             roles: data[1]
         }))
         .then(data => {
-            if (!data.roles.length) {
+            if (!data.roles.length) { // Handle empty tables
                 console.log("There are no roles\n");
             }
             else if (!data.employees.length) {
@@ -330,20 +331,20 @@ function updateRole() {
                         type: "list",
                         name: "employee",
                         message: "Employee:",
-                        choices: data.employees.map(emp => `${emp.first_name} ${emp.last_name}`)
+                        choices: data.employees.map(emp => `${emp.first_name} ${emp.last_name}`) // Convert to full name
                     },
                     {
                         type: "list",
                         name: "role",
                         message: "Role:",
-                        choices: data.roles.map(role => role.title)
+                        choices: data.roles.map(role => role.title) // Grab titles
                     }
                 ])
                     .then(response => {
                         return dbQuery(
                             "update employee_tb set role_id = ? where id = ?",
                             [
-                                data.roles.find(role => response.role == role.title).id,
+                                data.roles.find(role => response.role == role.title).id, // Convert back to IDs
                                 data.employees.find(emp => response.employee == `${emp.first_name} ${emp.last_name}`).id
                             ]
                         );
@@ -368,14 +369,14 @@ function deleteDept() {
                     type: "list",
                     name: "name",
                     message: "Department:",
-                    choices: departments.map(dept => dept.name)
+                    choices: departments.map(dept => dept.name) // Grab names
                 })
                     .then(response => {
                         return dbQuery(
                             "delete from department_tb where id = ?",
-                            departments.find(dept => response.name == dept.name).id
+                            departments.find(dept => response.name == dept.name).id // Convert back to ID
                         )
-                        .then(() => pruneDeptRoles());
+                        .then(() => pruneDeptRoles()); // Roles can't have a null department
                     })
                     .then(() => console.log("Success!\n"))
                     .catch(console.error);
@@ -396,14 +397,14 @@ function deleteRole() {
                     type: "list",
                     name: "title",
                     message: "Role:",
-                    choices: roles.map(role => role.title)
+                    choices: roles.map(role => role.title) // Grab role titles
                 })
                     .then(response => {
                         return dbQuery(
                             "delete from role_tb where id = ?",
-                            roles.find(role => response.title == role.title).id
+                            roles.find(role => response.title == role.title).id // Convert back to ID
                         )
-                            .then(() => pruneRoleEmps());
+                            .then(() => pruneRoleEmps()); // Employees can't have null role
                     })
                     .then(() => console.log("Success!\n"))
                     .catch(console.error);
@@ -424,10 +425,10 @@ function deleteEmp() {
                     type: "list",
                     name: "name",
                     message: "Employee:",
-                    choices: employees.map(emp => `${emp.first_name} ${emp.last_name}`)
+                    choices: employees.map(emp => `${emp.first_name} ${emp.last_name}`) // Grab whole names
                 })
                     .then(response => {
-                        let id = employees.find(emp => response.name == `${emp.first_name} ${emp.last_name}`).id;
+                        let id = employees.find(emp => response.name == `${emp.first_name} ${emp.last_name}`).id; // Grab ID
                         return dbQuery("delete from employee_tb where id = ?", id)
                             .then(() => pruneManagers(id));
                     })
@@ -462,7 +463,7 @@ function pruneManagers(id) {
             .catch(console.error);
     }
     else {
-        return dbQuery("select distinct manager_id from employee_tb where not manager_id in (select id from employee_tb)")
+        return dbQuery("select distinct manager_id from employee_tb where not manager_id in (select id from employee_tb)") // SQL doesn't allow updating a table based on itself
             .then(targets => targets.map(emp => emp.manager_id))
             .then(targets => Promise.all(targets.map(pruneManagers)))
             .catch(console.error);
