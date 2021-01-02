@@ -207,7 +207,7 @@ function viewDeptBudget() {
                         return dbQuery("select role_tb.salary from employee_tb inner join role_tb on employee_tb.role_id = role_tb.id where role_tb.department_id = ?", department.id)
                             .then(salaries => salaries.map(item => item.salary))
                             .then(salaries => salaries.reduce((x, y) => x + y)) // Sum of salaries
-                            .then(total => `$${total.toFixed(2)}\n`)
+                            .then(total => `Utilized budget: $${total.toFixed(2)}\n`)
                             .then(console.log)
                             .catch(console.error);
                     })
