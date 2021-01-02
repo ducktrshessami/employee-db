@@ -67,8 +67,15 @@ addEmployeeQ = [
     }
 ];
 
-// CLI
 function main() {
+    pruneManagers()
+        .then(() => {
+            db.end();
+        })
+}
+
+// CLI
+function foo() {
     prompt(entryQ)
         .then(async response => {
             let cont = true;
@@ -348,6 +355,12 @@ function deleteEmp() {
 function pruneManagers(id) {
     if (id) {
         return dbQuery("update employee_tb set manager_id = null where manager_id = ?", id)
+            .catch(console.error);
+    }
+    else {
+        return dbQuery("select distinct manager_id from employee_tb where not manager_id in (select id from employee_tb)")
+            .then(targets => targets.map(emp => emp.manager_id))
+            .then(targets => Promise.all(targets.map(pruneManagers)))
             .catch(console.error);
     }
 }
