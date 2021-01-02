@@ -310,7 +310,30 @@ function addEmployee() {
 
 // Remove a department
 function deleteDept() {
-
+    return dbQuery("select * from department_tb order by id")
+        .then(departments => {
+            if (departments.length) {
+                return prompt({
+                    type: "list",
+                    name: "name",
+                    message: "Department:",
+                    choices: departments.map(dept => dept.name)
+                })
+                    .then(response => {
+                        return dbQuery(
+                            "delete from department_tb where id = ?",
+                            departments.find(dept => response.name == dept.name).id
+                        )
+                        .then(() => pruneDeptRoles());
+                    })
+                    .then(() => console.log("Success!\n"))
+                    .catch(console.error);
+            }
+            else {
+                console.log("There are no departments\n");
+            }
+        })
+        .catch(console.error);
 }
 
 // Remove a role
@@ -333,6 +356,9 @@ function deleteRole() {
                     })
                     .then(() => console.log("Success!\n"))
                     .catch(console.error);
+            }
+            else {
+                console.log("There are no roles\n");
             }
         })
         .catch(console.error);
@@ -364,10 +390,17 @@ function deleteEmp() {
         .catch(console.error);
 }
 
+// Clean up roles after deleting a department
+function pruneDeptRoles() {
+    return dbQuery("delete from role_tb where not department_id in (select id from department_tb)")
+        .then(() => pruneRoleEmps())
+        .catch(console.error);
+}
+
 // Clean up employees after deleting a role
 function pruneRoleEmps() {
     return dbQuery("delete from employee_tb where not role_id in (select id from role_tb)")
-        .then(() => pruneManagers)
+        .then(() => pruneManagers())
         .catch(console.error);
 }
 
