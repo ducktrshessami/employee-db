@@ -325,7 +325,7 @@ function updateRole() {
                 console.log("There are no employees\n");
             }
             else {
-                prompt([
+                return prompt([
                     {
                         type: "list",
                         name: "employee",
@@ -340,8 +340,15 @@ function updateRole() {
                     }
                 ])
                     .then(response => {
-                        return dbQuery()
+                        return dbQuery(
+                            "update employee_tb set role_id = ? where id = ?",
+                            [
+                                data.roles.find(role => response.role == role.title).id,
+                                data.employees.find(emp => response.employee == `${emp.first_name} ${emp.last_name}`).id
+                            ]
+                        );
                     })
+                    .then(() => console.log("Success!\n"))
                     .catch(console.error);
             }
         })
