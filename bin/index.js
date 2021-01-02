@@ -327,7 +327,7 @@ function deleteRole() {
                     .then(response => {
                         let id = roles.find(role => response.title == role.title).id;
                         return dbQuery("delete from role_tb where id = ?", id)
-                            .then(() => pruneRoles(id));
+                            .then(() => pruneRoleEmps(id));
                     })
                     .then(() => console.log("Success!\n"))
                     .catch(console.error);
@@ -362,14 +362,11 @@ function deleteEmp() {
         .catch(console.error);
 }
 
-// Clean up employee roles after deleting an employee
-function pruneRoles(id) {
-    if (id) {
-
-    }
-    else {
-        
-    }
+// Clean up employees after deleting a role
+function pruneRoleEmps(id) {
+    return dbQuery("delete from employee_tb where not role_id in (select id from role_tb)", id)
+        .then(() => pruneManagers)
+        .catch(console.error);
 }
 
 // Clean up managers after deleting an employee
