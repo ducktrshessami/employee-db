@@ -373,7 +373,7 @@ function updateManager() {
                         type: "list",
                         name: "manager",
                         message: "Manager:",
-                        choices: (first) => ["N/A"].concat(employeeList.filter(emp => emp != first.employee))
+                        choices: (first) => ["N/A"].concat(employeeList.filter(emp => emp != first.employee)) // Employee can't be his own manager
                     }
                 ])
                     .then(response => {
