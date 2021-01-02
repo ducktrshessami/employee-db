@@ -81,8 +81,8 @@ function main() {
                 case "Add a department": await addDepartment(); break;
                 case "Add a role": await addRole(); break;
                 case "Add an employee": await addEmployee(); break;
-                case "Update an employee role":
-                case "Update an employee manager":
+                case "Update an employee role": await updateRole(); break;
+                case "Update an employee manager": await updateManager(); break;
                 case "Delete a department": await deleteDept(); break;
                 case "Delete a role": await deleteRole(); break;
                 case "Delete an employee": await deleteEmp(); break;
@@ -306,6 +306,50 @@ function addEmployee() {
             }
         })
         .catch(console.error);
+}
+
+function updateRole() {
+    return Promise.all([
+        dbQuery("select id, first_name, last_name from employee_tb order by id"),
+        dbQuery("select id, title from role_tb order by id")
+    ])
+        .then(data => ({
+            employees: data[0],
+            roles: data[1]
+        }))
+        .then(data => {
+            if (!data.roles.length) {
+                console.log("There are no roles\n");
+            }
+            else if (!data.employees.length) {
+                console.log("There are no employees\n");
+            }
+            else {
+                prompt([
+                    {
+                        type: "list",
+                        name: "employee",
+                        message: "Employee:",
+                        choices: data.employees.map(emp => `${emp.first_name} ${emp.last_name}`)
+                    },
+                    {
+                        type: "list",
+                        name: "role",
+                        message: "Role:",
+                        choices: data.roles.map(role => role.title)
+                    }
+                ])
+                    .then(response => {
+                        return dbQuery()
+                    })
+                    .catch(console.error);
+            }
+        })
+        .catch(console.error);
+}
+
+function updateManager() {
+
 }
 
 // Remove a department
