@@ -356,8 +356,44 @@ function updateRole() {
         .catch(console.error);
 }
 
+// Update an employee's manager
 function updateManager() {
-
+    return dbQuery("select id, first_name, last_name from employee_tb order by id")
+        .then(employees => {
+            if (employees.length) {
+                let employeeList = employees.map(emp => `${emp.first_name} ${emp.last_name}`);
+                return prompt([
+                    {
+                        type: "list",
+                        name: "employee",
+                        message: "Employee:",
+                        choices: employeeList
+                    },
+                    {
+                        type: "list",
+                        name: "manager",
+                        message: "Manager:",
+                        choices: (first) => ["N/A"].concat(employeeList.filter(emp => emp != first.employee))
+                    }
+                ])
+                    .then(response => {
+                        let manager = employees.find(emp => `${emp.first_name} ${emp.last_name}` == response.manager); // Convert full name to object
+                        return dbQuery(
+                            "update employee_tb set manager_id = ? where id = ?",
+                            [
+                                manager ? manager.id : null,
+                                employees.find(emp => `${emp.first_name} ${emp.last_name}` == response.employee).id
+                            ]
+                        );
+                    })
+                    .then(() => console.log("Success!\n"))
+                    .catch(console.error);
+            }
+            else {
+                console.log("There are no employees\n");
+            }
+        })
+        .catch(console.error);
 }
 
 // Remove a department
