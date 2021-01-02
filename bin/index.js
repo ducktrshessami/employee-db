@@ -1,6 +1,6 @@
 const sql = require("mysql");
 const { prompt } = require("inquirer");
-const cTable = require("console.table");
+require("console.table");
 
 const db = sql.createConnection({
     host: "localhost",
@@ -67,15 +67,8 @@ addEmployeeQ = [
     }
 ];
 
-function main() {
-    pruneManagers()
-        .then(() => {
-            db.end();
-        })
-}
-
 // CLI
-function foo() {
+function main() {
     prompt(entryQ)
         .then(async response => {
             let cont = true;
@@ -322,7 +315,20 @@ function deleteDept() {
 
 // Remove a role
 function deleteRole() {
-
+    return dbQuery("select id, title from role_tb order by id")
+        .then(roles => {
+            if (roles.length) {
+                return prompt({
+                    type: "list",
+                    name: "title",
+                    message: "Role:",
+                    choices: roles.map(role => role.title)
+                })
+                    .then(response)
+                    .catch(console.error);
+            }
+        })
+        .catch(console.error);
 }
 
 // Remove an employee
